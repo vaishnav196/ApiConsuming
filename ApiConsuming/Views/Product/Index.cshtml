@@ -6,7 +6,7 @@
 
 
 @model List<Product>
-
+<a class=" btn btn-primary" asp-action="AddProduct" asp-controller="Product">Add Product</a>
 <table class="table">
     <thead>
         <tr>
@@ -14,6 +14,7 @@
             <th scope="col">Product Name</th>
             <th scope="col">Product cateogroy</th>
             <th scope="col">Price</th>
+            <th scope="col">Action</th>
         </tr>
     </thead>
     <tbody>
@@ -24,6 +25,10 @@
                 <td>@d.pname</td>
                 <td>@d.pcat</td>
                 <td>@d.price</td>
+                <td>
+                    <a class="btn btn-primary" asp-action="EditProduct" asp-controller="Product" asp-route-id="@d.id">Edit</a>
+                    <a class="btn btn-danger" asp-action="DeleteProduct" asp-controller="Product" asp-route-id="@d.id">Delete</a>
+                    </td>
             </tr>
         }
        
