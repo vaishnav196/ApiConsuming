@@ -1,0 +1,32 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+
+
+@model List<Product>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th scope="col">Product Id</th>
+            <th scope="col">Product Name</th>
+            <th scope="col">Product cateogroy</th>
+            <th scope="col">Price</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach(var d in Model)
+        {
+            <tr>
+                <th scope="row">@d.id</th>
+                <td>@d.pname</td>
+                <td>@d.pcat</td>
+                <td>@d.price</td>
+            </tr>
+        }
+       
+     
+    </tbody>
+</table>
