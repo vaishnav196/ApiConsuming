@@ -14,6 +14,7 @@
             <th scope="col">Product Name</th>
             <th scope="col">Product cateogroy</th>
             <th scope="col">Price</th>
+            <th scope="col">Image</th>
             <th scope="col">Action</th>
         </tr>
     </thead>
@@ -25,6 +26,13 @@
                 <td>@d.pname</td>
                 <td>@d.pcat</td>
                 <td>@d.price</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(@d.ImagePath))
+                    {
+                        <img src="@Url.Action("DownloadFile","Product", new { fileName = System.IO.Path.GetFileName(d.ImagePath) })" width="100" height="100" class="" value="DownLoad" />
+                        <a href="@Url.Action("DownloadFile","Product", new { fileName = System.IO.Path.GetFileName(d.ImagePath) })"  class="btn btn-outline-danger btn-sm" >Download</a>
+                    }
+                </td>
                 <td>
                     <a class="btn btn-primary" asp-action="EditProduct" asp-controller="Product" asp-route-id="@d.id">Edit</a>
                     <a class="btn btn-danger" asp-action="DeleteProduct" asp-controller="Product" asp-route-id="@d.id">Delete</a>

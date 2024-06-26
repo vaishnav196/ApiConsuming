@@ -43,24 +43,43 @@ namespace ApiConsuming.Controllers
             return View();
         }
 
+        //[HttpPost]
+        //public IActionResult AddProduct(Product p)
+        //{
+        //    string url = "https://localhost:7000/api/Product/AddProduct/";
+        //    var jsondata = JsonConvert.SerializeObject(p);
+        //    StringContent content = new StringContent(jsondata, Encoding.UTF8, "application/json");
+        //    HttpResponseMessage respone = client.PostAsync(url, content).Result;
+        //    if (respone.IsSuccessStatusCode)
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+
+        //    return View();
+
+        //}
+
         [HttpPost]
-        public IActionResult AddProduct(Product p)
+        public IActionResult AddProduct(Product p, IFormFile imageFile)
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var imagePath = UploadFile(imageFile).Result;
+                p.ImagePath = imagePath;
+            }
+
             string url = "https://localhost:7000/api/Product/AddProduct/";
             var jsondata = JsonConvert.SerializeObject(p);
             StringContent content = new StringContent(jsondata, Encoding.UTF8, "application/json");
-            HttpResponseMessage respone = client.PostAsync(url, content).Result;
-            if (respone.IsSuccessStatusCode)
+            HttpResponseMessage response = client.PostAsync(url, content).Result;
+            if (response.IsSuccessStatusCode)
             {
                 return RedirectToAction("Index");
             }
 
             return View();
-
         }
 
-
-       
 
         public IActionResult DeleteProduct(int id)
         {
@@ -90,9 +109,29 @@ namespace ApiConsuming.Controllers
             return View(prod);
         }
 
+        //[HttpPost]
+        //public IActionResult EditProduct(Product p)
+        //{
+        //    string url = "https://localhost:7000/api/Product/UpdateProd/";
+        //    var jsondata = JsonConvert.SerializeObject(p);
+        //    StringContent content = new StringContent(jsondata, Encoding.UTF8, "application/json");
+        //    HttpResponseMessage response = client.PutAsync(url, content).Result;
+        //    if (response.IsSuccessStatusCode)
+        //    {
+        //        return RedirectToAction("Index");
+        //    }
+        //    return View();
+        //}
+
         [HttpPost]
-        public IActionResult EditProduct(Product p)
+        public IActionResult EditProduct(Product p, IFormFile imageFile)
         {
+            if (imageFile != null && imageFile.Length > 0)
+            {
+                var imagePath = UploadFile(imageFile).Result;
+                p.ImagePath = imagePath;
+            }
+
             string url = "https://localhost:7000/api/Product/UpdateProd/";
             var jsondata = JsonConvert.SerializeObject(p);
             StringContent content = new StringContent(jsondata, Encoding.UTF8, "application/json");
@@ -103,6 +142,38 @@ namespace ApiConsuming.Controllers
             }
             return View();
         }
+
+        private async Task<string> UploadFile(IFormFile file)
+        {
+            var url = "https://localhost:7000/api/Product/upload";
+            using var content = new MultipartFormDataContent();
+            using var fileStream = file.OpenReadStream();
+            using var streamContent = new StreamContent(fileStream);
+            streamContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue(file.ContentType);
+            content.Add(streamContent, "file", file.FileName);
+
+            var response = await client.PostAsync(url, content);
+            response.EnsureSuccessStatusCode();
+
+            var result = await response.Content.ReadAsStringAsync();
+            var data = JsonConvert.DeserializeObject<dynamic>(result);
+            return data.filePath;
+        }
+
+        public async Task<IActionResult> DownloadFile(string fileName)
+        {
+            var url = $"https://localhost:7000/api/Product/download/{fileName}/";
+            var response = await client.GetAsync(url);
+
+            if (!response.IsSuccessStatusCode)
+                return NotFound("File not found.");
+
+            var fileStream = await response.Content.ReadAsStreamAsync();
+            var contentType = response.Content.Headers.ContentType.ToString();
+
+            return File(fileStream, contentType, fileName);
+        }
     }
 }
+
 
