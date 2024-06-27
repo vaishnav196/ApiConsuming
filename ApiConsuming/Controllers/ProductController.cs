@@ -130,6 +130,7 @@ namespace ApiConsuming.Controllers
             {
                 var imagePath = UploadFile(imageFile).Result;
                 p.ImagePath = imagePath;
+
             }
 
             string url = "https://localhost:7000/api/Product/UpdateProd/";
@@ -142,6 +143,8 @@ namespace ApiConsuming.Controllers
             }
             return View();
         }
+
+
 
         private async Task<string> UploadFile(IFormFile file)
         {
@@ -173,7 +176,33 @@ namespace ApiConsuming.Controllers
 
             return File(fileStream, contentType, fileName);
         }
+
+      
+        public async Task<IActionResult> DeleteMultipleProducts([FromBody] List<int> productIds)
+        {
+            if (productIds == null || !productIds.Any())
+            {
+                return BadRequest("No product IDs provided");
+            }
+
+            string url = "https://localhost:7000/api/Product/DeleteMultipleProducts";
+            var jsonData = JsonConvert.SerializeObject(productIds);
+            var request = new HttpRequestMessage(HttpMethod.Delete, url)
+            {
+                Content = new StringContent(jsonData, Encoding.UTF8, "application/json")
+            };
+
+            HttpResponseMessage response = await client.SendAsync(request);
+            if (response.IsSuccessStatusCode)
+            {
+                return Ok("Products deleted successfully");
+            }
+            return BadRequest("Failed to delete products");
+        }
+
     }
+
 }
+
 
 
