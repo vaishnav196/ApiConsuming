@@ -6,12 +6,15 @@
 
 
 @model List<Product>
-<a class=" btn btn-primary" asp-action="AddProduct" asp-controller="Product">Add Product</a>
+<h1>Products</h1>
 
-<table class="table">
-    <thead>
+<a class=" btn btn-primary mb-3" asp-action="AddProduct" asp-controller="Product">Add Product</a>
+<form method="post" asp-action="DeleteMultipleProducts" asp-controller="Product" id="deleteForm">
+<button type="submit" class="btn btn-danger mb-3" Id="deleteSelected">Delete Selected Products</button>
+<table class="table table-striped table-hover">
+    <thead class="table-borderless table-dark " >
         <tr>
-               <th scope="col">Select</th>
+                <th scope="col"><input type="checkbox" id="selectAll" onclick="toggleCheckboxes(this)"></th>
             <th scope="col">Product Id</th>
             <th scope="col">Product Name</th>
             <th scope="col">Product cateogroy</th>
@@ -24,7 +27,7 @@
         @foreach(var d in Model)
         {
             <tr>
-                <td><input type="checkbox" name="productIds" value="@d.id" /></td>
+                    <td><input type="checkbox" name="selectedIds" value="@d.id" /></td>
                 <th scope="row">@d.id</th>
                 <td>@d.pname</td>
                 <td>@d.pcat</td>
@@ -46,43 +49,19 @@
      
     </tbody>
 </table>
-<button type="submit" class="btn btn-danger" Id="deleteSelected" >Delete Selected Products</button>
-
+</form>
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
-            integrity="sha384-VPFmTjq0pW1f4JjwuNPE0wHvEyWWuoF+1K4qLY8p0cg3CjcS+T6clXPMO5E9I4mJ"
-            crossorigin="anonymous"></script>
     <script>
-        $(document).ready(function () {
-            $('#deleteSelected').on('click', function (event) {
-                event.preventDefault();
-                var productIds = [];
-
-                // Get all checked checkboxes
-                $('input[name="productIds"]:checked').each(function () {
-                    productIds.push(parseInt($(this).val()));
-                });
-
-                if (productIds.length === 0) {
-                    alert("No products selected.");
-                    return;
-                }
-
-                // Send AJAX request to delete products
-                $.ajax({
-                    url: '/api/Product/DeleteMultipleProducts',
-                   type: 'DELETE',
-                    contentType: 'application/json',
-                    data: JSON.stringify(productIds),
-                    success: function (response) {
-                        alert(response); // Display success message
-                        window.location.reload(); // Refresh page after deletion
-                    },
-                    error: function (xhr, status, error) {
-                        console.error(xhr.responseText);
-                    }
-                });
-            });
-        });
+        function toggleCheckboxes(source) {
+            checkboxes = document.getElementsByName('selectedIds');
+            for (var i = 0; i < checkboxes.length; i++) {
+                checkboxes[i].checked = source.checked;
+            }
+        }
     </script>
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
+
+

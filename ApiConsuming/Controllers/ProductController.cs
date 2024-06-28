@@ -177,29 +177,28 @@ namespace ApiConsuming.Controllers
             return File(fileStream, contentType, fileName);
         }
 
-      
-        public async Task<IActionResult> DeleteMultipleProducts([FromBody] List<int> productIds)
+
+
+
+        [HttpPost]
+        public IActionResult DeleteSelectedProducts(List<int> selectedIds)
         {
-            if (productIds == null || !productIds.Any())
+            if (selectedIds != null && selectedIds.Count > 0)
             {
-                return BadRequest("No product IDs provided");
+                foreach (var id in selectedIds)
+                {
+                    string url = "https://localhost:7000/api/Product/DeleteMultipleProducts/";
+                    HttpResponseMessage response = client.DeleteAsync(url).Result;
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        // Handle error
+                        ViewBag.ErrorMessage = "Error deleting some products.";
+                        break;
+                    }
+                }
             }
-
-            string url = "https://localhost:7000/api/Product/DeleteMultipleProducts";
-            var jsonData = JsonConvert.SerializeObject(productIds);
-            var request = new HttpRequestMessage(HttpMethod.Delete, url)
-            {
-                Content = new StringContent(jsonData, Encoding.UTF8, "application/json")
-            };
-
-            HttpResponseMessage response = await client.SendAsync(request);
-            if (response.IsSuccessStatusCode)
-            {
-                return Ok("Products deleted successfully");
-            }
-            return BadRequest("Failed to delete products");
+            return RedirectToAction("Index");
         }
-
     }
 
 }
